@@ -314,25 +314,6 @@ public class ModifyTestProperties {
     }
     //find and set spark-assembly jar
     private static void setSpark( String pathToTestProperties ) {
-        String[] findSparkAssembly =
-                SSHUtils.getCommandResponseBySSH( ShimValues.getSshUser(), ShimValues.getSshHost(), ShimValues
-                                .getSshPassword(),
-                        "find / -name 'spark-assembly*'" ).split( "\\r|\\n" );
-        String localSparkAssemblyPath = "";
-        loopForSpark:
-        for ( String a : findSparkAssembly ) {
-            if ( a.contains( "spark-assembly-" ) ) {
-                localSparkAssemblyPath = a;
-                break loopForSpark;
-            }
-        }
-        // copy spark-assembly jar to hdfs and set spark_yarn_jar property
-        SSHUtils.getCommandResponseBySSH( ShimValues.getSshUser(), ShimValues.getSshHost(), ShimValues.getSshPassword(),
-                ( "hadoop fs -copyFromLocal " + localSparkAssemblyPath + " /opt/pentaho" ) );
-        File f = new File( localSparkAssemblyPath );
-        String sparkAssemblyName = f.getName();
-        PropertyHandler
-                .setProperty( pathToTestProperties, "spark_yarn_jar", "${hdfsUrl}/opt/pentaho/" + sparkAssemblyName );
         // if it is hdp cluster - 2 more properties are needed
         if ( ShimValues.getHadoopVendor().equalsIgnoreCase( "hdp" ) ) {
             String hdpVersion = SSHUtils.getCommandResponseBySSH(
